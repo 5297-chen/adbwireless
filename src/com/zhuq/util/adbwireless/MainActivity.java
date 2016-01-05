@@ -4,6 +4,9 @@ import com.zhuq.util.adbwireless.ShellUtils.CommandResult;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -68,6 +71,7 @@ import android.widget.Toast;
         adbstate = (TextView) findViewById(R.id.adbstate);
         tis = (TextView) findViewById(R.id.tis);
         checkState();
+        ip.setText(STR_IP+getIP());
     }
     
     private void checkState(){
@@ -93,6 +97,7 @@ import android.widget.Toast;
     	new Thread(){
     		public void run() {
     			CommandResult commandResult = ShellUtils.execCommand(command_adb_start, true);
+    			Log.i("qenter", "commandResult.result:"+commandResult.result);
     			if(commandResult.result==0 ){
     				handler.sendEmptyMessage(ON);
     			}else{
@@ -117,7 +122,25 @@ import android.widget.Toast;
     }
     
     public String getIP(){
-    	return null;
+    	//获取wifi服务  
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);  
+        //判断wifi是否开启  
+        if (!wifiManager.isWifiEnabled()) {  
+        wifiManager.setWifiEnabled(true);    
+        }  
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();       
+        int ipAddress = wifiInfo.getIpAddress();   
+        String ip = intToIp(ipAddress);
+        Log.i("qenter", "ip:"+ip);
+    	return ip;
     }
+    
+    private String intToIp(int i) {       
+        
+        return (i & 0xFF ) + "." +       
+      ((i >> 8 ) & 0xFF) + "." +       
+      ((i >> 16 ) & 0xFF) + "." +       
+      ( i >> 24 & 0xFF) ;  
+   }  
 
 }
